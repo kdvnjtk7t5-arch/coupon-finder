@@ -3,73 +3,198 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Coupon Finder — Don't pay full price</title>
+<title>Snagged — Don't pay full price</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
-    background: #0B2027;
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    background: #14110F;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(198,255,61,0.06), transparent 40%),
+      radial-gradient(circle at 90% 30%, rgba(255,90,54,0.05), transparent 35%);
+    font-family: 'Inter', -apple-system, sans-serif;
     min-height: 100vh;
+    color: #F5EFE1;
   }
-  .wrap { max-width: 480px; margin: 0 auto; padding: 32px 20px 40px; }
-  .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .eyebrow span {
-    font-size: 12px; color: #8FA3A0; letter-spacing: 0.08em; text-transform: uppercase;
+  .wrap { max-width: 480px; margin: 0 auto; padding: 28px 18px 50px; position: relative; }
+
+  /* Hero */
+  .hero { position: relative; margin-bottom: 30px; padding-top: 6px; }
+  .eyebrow {
+    font-size: 11px; color: #8C8577; letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 10px; font-weight: 600;
   }
   h1 {
-    font-size: 32px; font-weight: 700; color: #F7F5F0; margin: 0 0 24px; line-height: 1.1;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 58px;
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    margin: 0;
+    color: #F5EFE1;
+    max-width: 78%;
   }
+  h1 span { color: #C6FF3D; }
+
+  /* Stamp badge */
+  .stamp {
+    position: absolute;
+    top: -4px;
+    right: 0;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 3px dashed rgba(198,255,61,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(11deg);
+    flex-shrink: 0;
+  }
+  .stamp-inner {
+    font-family: 'Bebas Neue', sans-serif;
+    color: #C6FF3D;
+    text-align: center;
+    line-height: 0.95;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+  }
+  .stamp-inner b { display: block; font-size: 26px; }
+
+  /* Search */
   .search {
     display: flex; align-items: center; gap: 10px;
-    background: rgba(247,245,240,0.08); border: 1px solid rgba(247,245,240,0.15);
-    border-radius: 10px; padding: 12px 14px; margin-bottom: 24px;
+    background: rgba(245,239,225,0.06);
+    border: 1.5px solid rgba(245,239,225,0.16);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 28px;
   }
+  .search svg { flex-shrink: 0; opacity: 0.6; }
   .search input {
-    background: transparent; border: none; outline: none; color: #F7F5F0;
-    font-size: 15px; width: 100%; font-family: inherit;
+    background: transparent; border: none; outline: none; color: #F5EFE1;
+    font-size: 16px; width: 100%; font-family: 'Inter', sans-serif; font-weight: 500;
   }
-  .search input::placeholder { color: #8FA3A0; }
+  .search input::placeholder { color: #7A7466; }
+
+  /* Store groups */
+  .store-block { margin-bottom: 26px; }
   .store-name {
-    color: #F7F5F0; font-size: 13px; font-weight: 600; letter-spacing: 0.03em;
-    text-transform: uppercase; margin-bottom: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.03em;
+    color: #F5EFE1;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
   }
-  .store-block { margin-bottom: 28px; }
-  .ticket { display: flex; margin-bottom: 14px; }
-  .ticket.expired { opacity: 0.5; }
+  .store-name .count {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #14110F;
+    background: #C6FF3D;
+    border-radius: 20px;
+    padding: 2px 8px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Ticket */
+  .ticket {
+    display: flex;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+  }
+  .ticket.expired { opacity: 0.42; }
   .ticket-body {
-    flex: 1; background: #F7F5F0; border-radius: 10px 0 0 10px; padding: 16px 18px;
+    flex: 1;
+    background: #F5EFE1;
+    border-radius: 12px 0 0 12px;
+    padding: 16px 18px;
+    position: relative;
   }
-  .status-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-  .status-label { font-size: 11px; color: #6B7280; letter-spacing: 0.04em; text-transform: uppercase; }
-  .desc { font-size: 15px; color: #1A1F1D; font-weight: 600; }
-  .perf { width: 0; border-left: 2px dashed #D8D3C8; background: #F7F5F0; }
+  .status-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .status-label {
+    font-size: 10.5px; color: #8C8577; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .desc { font-size: 15.5px; color: #14110F; font-weight: 600; line-height: 1.25; }
+
+  .perf {
+    width: 0;
+    border-left: 2.5px dashed rgba(20,17,15,0.18);
+    background: #F5EFE1;
+    position: relative;
+  }
+  .perf::before, .perf::after {
+    content: ''; position: absolute; left: -8px; width: 16px; height: 16px;
+    background: #14110F; border-radius: 50%;
+  }
+  .perf::before { top: -8px; }
+  .perf::after { bottom: -8px; }
+
   .stub {
-    width: 130px; background: #F7F5F0; border-radius: 0 10px 10px 0; border: none;
-    cursor: pointer; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 4px; padding: 8px;
+    width: 128px;
+    background: #F5EFE1;
+    border-radius: 0 12px 12px 0;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px;
   }
   .ticket.expired .stub { cursor: default; }
-  .code { font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; color: #0B2027; letter-spacing: 0.02em; }
-  .copy-label { font-size: 11px; color: #6B7280; }
-  .copy-label.copied { color: #3FA796; }
-  .empty { color: #8FA3A0; font-size: 14px; padding: 20px 0; }
-  .footer { margin-top: 16px; color: #5A6B68; font-size: 12px; }
+  .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #14110F;
+    letter-spacing: 0.02em;
+  }
+  .copy-label { font-size: 11px; color: #8C8577; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .copy-label.copied { color: #4C9A2A; }
+
+  .empty { color: #8C8577; font-size: 14px; padding: 30px 0; text-align: center; }
+  .footer {
+    margin-top: 20px; color: #5E594D; font-size: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  @media (max-width: 380px) {
+    h1 { font-size: 46px; }
+    .stamp { width: 78px; height: 78px; }
+    .stamp-inner b { font-size: 20px; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="eyebrow"><span>Before you check out</span></div>
-  <h1>Don't pay full price.</h1>
+
+  <div class="hero">
+    <div class="eyebrow">Before you check out</div>
+    <h1>Don't pay <span>full</span> price.</h1>
+    <div class="stamp" aria-hidden="true">
+      <div class="stamp-inner"><b id="codeCount">0</b>codes<br/>live</div>
+    </div>
+  </div>
 
   <div class="search">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5EFE1" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input id="searchInput" placeholder="Search a store..." />
   </div>
 
   <div id="results"></div>
 
-  <div class="footer">Codes checked periodically — sample data for now.</div>
+  <div class="footer">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5E594D" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Codes checked periodically — sample data for now.
+  </div>
 </div>
 
 <script>
@@ -95,10 +220,14 @@ const STORES = [
 ];
 
 const STATUS_STYLES = {
-  active: { label: "Active", dot: "#8FE388" },
-  expiring: { label: "Expiring soon", dot: "#F2B84B" },
-  expired: { label: "Expired", dot: "#E4572E" },
+  active: { label: "Active", dot: "#4C9A2A" },
+  expiring: { label: "Expiring soon", dot: "#E8A93B" },
+  expired: { label: "Expired", dot: "#FF5A36" },
 };
+
+function totalActive() {
+  return STORES.reduce((sum, s) => sum + s.codes.filter(c => c.status !== 'expired').length, 0);
+}
 
 function render(query) {
   const resultsEl = document.getElementById('results');
@@ -106,18 +235,17 @@ function render(query) {
   const filtered = q ? STORES.filter(s => s.name.toLowerCase().includes(q)) : STORES;
 
   if (filtered.length === 0) {
-    resultsEl.innerHTML = `<div class="empty">No store matches "${escapeHtml(query)}" yet. More stores are added regularly.</div>`;
+    resultsEl.innerHTML = `<div class="empty">No store matches &ldquo;${escapeHtml(query)}&rdquo; yet.<br/>More stores are added regularly.</div>`;
     return;
   }
 
   resultsEl.innerHTML = filtered.map(store => `
     <div class="store-block">
-      <div class="store-name">${escapeHtml(store.name)}</div>
+      <div class="store-name">${escapeHtml(store.name)} <span class="count">${store.codes.filter(c=>c.status!=='expired').length} live</span></div>
       ${store.codes.map(c => ticketHtml(c)).join('')}
     </div>
   `).join('');
 
-  // wire up copy buttons
   resultsEl.querySelectorAll('.stub[data-code]').forEach(btn => {
     btn.addEventListener('click', () => {
       const code = btn.getAttribute('data-code');
@@ -125,7 +253,7 @@ function render(query) {
       if (isExpired) return;
       navigator.clipboard?.writeText(code).catch(() => {});
       const label = btn.querySelector('.copy-label');
-      label.textContent = 'Copied';
+      label.textContent = '✓ Copied';
       label.classList.add('copied');
       setTimeout(() => {
         label.textContent = 'Tap to copy';
@@ -162,6 +290,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+document.getElementById('codeCount').textContent = totalActive();
 document.getElementById('searchInput').addEventListener('input', (e) => render(e.target.value));
 render('');
 </script>
