@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Coupon Finder — Don't pay full price</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0B2027;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 32px 20px 40px; }
+  .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .eyebrow span {
+    font-size: 12px; color: #8FA3A0; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  h1 {
+    font-size: 32px; font-weight: 700; color: #F7F5F0; margin: 0 0 24px; line-height: 1.1;
+  }
+  .search {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(247,245,240,0.08); border: 1px solid rgba(247,245,240,0.15);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 24px;
+  }
+  .search input {
+    background: transparent; border: none; outline: none; color: #F7F5F0;
+    font-size: 15px; width: 100%; font-family: inherit;
+  }
+  .search input::placeholder { color: #8FA3A0; }
+  .store-name {
+    color: #F7F5F0; font-size: 13px; font-weight: 600; letter-spacing: 0.03em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .store-block { margin-bottom: 28px; }
+  .ticket { display: flex; margin-bottom: 14px; }
+  .ticket.expired { opacity: 0.5; }
+  .ticket-body {
+    flex: 1; background: #F7F5F0; border-radius: 10px 0 0 10px; padding: 16px 18px;
+  }
+  .status-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .status-label { font-size: 11px; color: #6B7280; letter-spacing: 0.04em; text-transform: uppercase; }
+  .desc { font-size: 15px; color: #1A1F1D; font-weight: 600; }
+  .perf { width: 0; border-left: 2px dashed #D8D3C8; background: #F7F5F0; }
+  .stub {
+    width: 130px; background: #F7F5F0; border-radius: 0 10px 10px 0; border: none;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; padding: 8px;
+  }
+  .ticket.expired .stub { cursor: default; }
+  .code { font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; color: #0B2027; letter-spacing: 0.02em; }
+  .copy-label { font-size: 11px; color: #6B7280; }
+  .copy-label.copied { color: #3FA796; }
+  .empty { color: #8FA3A0; font-size: 14px; padding: 20px 0; }
+  .footer { margin-top: 16px; color: #5A6B68; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><span>Before you check out</span></div>
+  <h1>Don't pay full price.</h1>
+
+  <div class="search">
+    <input id="searchInput" placeholder="Search a store..." />
+  </div>
+
+  <div id="results"></div>
+
+  <div class="footer">Codes checked periodically — sample data for now.</div>
+</div>
+
+<script>
+const STORES = [
+  { name: "Nike", codes: [
+    { code: "RUNFAST20", desc: "20% off running shoes", status: "active" },
+    { code: "FREESHIP", desc: "Free shipping, no minimum", status: "active" },
+  ]},
+  { name: "Target", codes: [
+    { code: "SAVE15NOW", desc: "15% off home goods", status: "active" },
+    { code: "WELCOME10", desc: "10% off first order", status: "expiring" },
+  ]},
+  { name: "Sephora", codes: [
+    { code: "GLOW25", desc: "25% off skincare sets", status: "active" },
+  ]},
+  { name: "Nomad Coffee Co", codes: [
+    { code: "BEANS5", desc: "$5 off bags over $25", status: "active" },
+    { code: "SUMMER22", desc: "Free mug with order", status: "expired" },
+  ]},
+  { name: "Everlane", codes: [
+    { code: "COTTON15", desc: "15% off basics", status: "active" },
+  ]},
+];
+
+const STATUS_STYLES = {
+  active: { label: "Active", dot: "#8FE388" },
+  expiring: { label: "Expiring soon", dot: "#F2B84B" },
+  expired: { label: "Expired", dot: "#E4572E" },
+};
+
+function render(query) {
+  const resultsEl = document.getElementById('results');
+  const q = (query || '').toLowerCase().trim();
+  const filtered = q ? STORES.filter(s => s.name.toLowerCase().includes(q)) : STORES;
+
+  if (filtered.length === 0) {
+    resultsEl.innerHTML = `<div class="empty">No store matches "${escapeHtml(query)}" yet. More stores are added regularly.</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML = filtered.map(store => `
+    <div class="store-block">
+      <div class="store-name">${escapeHtml(store.name)}</div>
+      ${store.codes.map(c => ticketHtml(c)).join('')}
+    </div>
+  `).join('');
+
+  // wire up copy buttons
+  resultsEl.querySelectorAll('.stub[data-code]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.getAttribute('data-code');
+      const isExpired = btn.getAttribute('data-expired') === 'true';
+      if (isExpired) return;
+      navigator.clipboard?.writeText(code).catch(() => {});
+      const label = btn.querySelector('.copy-label');
+      label.textContent = 'Copied';
+      label.classList.add('copied');
+      setTimeout(() => {
+        label.textContent = 'Tap to copy';
+        label.classList.remove('copied');
+      }, 1500);
+    });
+  });
+}
+
+function ticketHtml(c) {
+  const status = STATUS_STYLES[c.status];
+  const isExpired = c.status === 'expired';
+  return `
+    <div class="ticket ${isExpired ? 'expired' : ''}">
+      <div class="ticket-body">
+        <div class="status-row">
+          <span class="dot" style="background:${status.dot}"></span>
+          <span class="status-label">${status.label}</span>
+        </div>
+        <div class="desc">${escapeHtml(c.desc)}</div>
+      </div>
+      <div class="perf"></div>
+      <button class="stub" data-code="${escapeHtml(c.code)}" data-expired="${isExpired}">
+        <span class="code">${escapeHtml(c.code)}</span>
+        <span class="copy-label">${isExpired ? 'Unavailable' : 'Tap to copy'}</span>
+      </button>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+document.getElementById('searchInput').addEventListener('input', (e) => render(e.target.value));
+render('');
+</script>
+</body>
+</html>
